@@ -60,4 +60,24 @@ router.post('/verify',(req,res) => {
         })
     }
 })
+
+router.post("/signup", async(req,res) => {
+    const {username, password,email} = req.body; 
+    if(!username || !email || !password){
+        return res.status(422).json({error: 'please add all the fields'})
+    }
+    else{
+        const user = new User({
+            username, 
+            email,
+        })
+        try{
+            await user.save(); 
+            return res.status(200).json({message: "User Registered Successfully!"})
+        }catch(err){
+           console.log(err); 
+           return res.status(422).json({error: 'Error Registering User!'})
+        }
+    }
+})
 module.exports = router; 
