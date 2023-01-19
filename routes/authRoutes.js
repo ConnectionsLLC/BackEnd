@@ -80,4 +80,18 @@ router.post("/signup", async(req,res) => {
         }
     }
 })
+
+router.post('/userdata',(req,res) => {
+    const {email} = req.body; 
+    User.findOne({email: email})
+    .then(savedUser=>{
+        if(!savedUser){
+            return res.status(422).json({error: "Invaild Credentials"})
+        }
+        else{
+            console.log(savedUser)
+            res.status(200).json({message: 'User Found', savedUser})
+        }
+    })
+})
 module.exports = router; 

@@ -17,6 +17,23 @@ const userSchema = new mongoose.Schema({
     posts: {
         type: Array, 
         default: []
-    }
+    }, 
+    stories: {
+        type: Array, 
+        default: []
+    },
+    followers: {
+        type: Array, 
+        default: []
+    },
+    following: {
+        type: Array, 
+        default: []
+    }, 
+    descritption: {
+        type: String, 
+        default: "Hey there, I Am Using Social!"
+    }, 
+
 })
 mongoose.model("User",userSchema)
