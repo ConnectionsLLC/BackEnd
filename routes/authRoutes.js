@@ -96,4 +96,85 @@ router.post('/userdata',(req,res) => {
         }
     })
 })
+router.post('/finduser',(req,res) => {
+    const {keyword} = req.body; 
+    User.find({username:  { $regex: keyword, $options: 'i'}})
+    .then(user => {
+        console.log(user)
+        if(user.length == 0 ){
+            return res.status(422).json({ error: "No User Found"})
+        }
+        else{
+            return res.status(200).send({
+                message: "User Found",
+                user: user
+            })
+        }
+        
+    })
+})
+
+router.post('/checkfollow',(req,res) => {
+    const {followfrom,followto} = req.body
+    if(!followfrom || !followto){
+        return res.status(422).json({error: "Invalid Credentials"})
+    }
+    User.findOne({email: followfrom})
+    .then(mainuser => {
+        if(!mainuser){
+            return res.status(422).json({error: "Invalid Credentials"})
+        }else{
+            let data = mainuser.following.includes(followto)
+            if(data == true){
+                res.status(200).send({
+                    message: "User in following list"
+                })
+            }else{
+                res.status(200).send({
+                    message: "User not in following list"
+                })
+            }
+        }
+    })
+})
+
+router.post('/followuser',(req,res) => {
+    const {followfrom, followto} = req.body; 
+    if(!followfrom || !followto){
+        return res.status(422).json({error: "Invalid Credentials"})
+    }
+   
+    User.findOne({email: followfrom})
+    .then(mainuser=> {
+       if(!mainuser){
+        return res.status(422).json({error: "Invalid Credentials"})
+
+       }else{
+        if(mainuser.following.includes(followto)){
+            return res.status(422).json({error: "Already Following"})
+          }
+          else{
+            mainuser.following.push(followto)
+          }
+       }
+    })
+    User.findOne({email: followto})
+    .then(otheruser=> {
+       if(!otheruser){
+        return res.status(422).json({error: "Invalid Credentials"})
+
+       }else{
+        if(otheruser.following.includes(followfrom)){
+            return res.status(422).json({error: "Already Following"})
+          }
+          else{
+            otheruser.following.push(followfrom)
+            otheruser.save()
+          }
+          res.status(200).send({
+            message: 'User Followed'
+          })
+       }
+    })
+})
 module.exports = router; 
