@@ -1,9 +1,9 @@
 const express = require('express')
-const router = express.Router(); 
-const mongoose = require('mongoose'); 
+const router = express.Router();
+const mongoose = require('mongoose');
 const User = mongoose.model('User')
 const jwt = require('jsonwebtoken')
-require('dotenv').config(); 
+require('dotenv').config();
 const nodemailer = require('nodemailer')
 
 // router.get('/home',(req,res) => {
@@ -19,8 +19,8 @@ async function mailer(recieveremail, code) {
         secure: false, // true for 465, false for other ports
         requireTLS: true,
         auth: {
-            user: process.env.NODEMAILER_EMAIL, 
-            pass: process.env.NODEMAILER_PASS, 
+            user: process.env.NODEMAILER_EMAIL,
+            pass: process.env.NODEMAILER_PASS,
         },
     });
 
@@ -37,187 +37,167 @@ async function mailer(recieveremail, code) {
     console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
 }
 
-router.post('/verify',(req,res) => {
-    const {email} = req.body;
-    if(!email){
-        return res.status(422).json({error: "Please add all the fields"});
+router.post('/verify', (req, res) => {
+    const { email } = req.body;
+    if (!email) {
+        return res.status(422).json({ error: "Please add all the fields" });
     }
-    else{
-        User.findOne({email: email})
-        .then(async (savedUser) => {
-            // console.log(savedUser)
-            // return res.status(200).json({message: 'Email Sent'})
-            if(savedUser){
-                return res.status(422).json({error: 'Invalid Credentials'})
-            }
-            try{
-                let VerificationCode = Math.floor(100000 + Math.random()* 900000)
-                await mailer(email, VerificationCode)
-                return res.status(200).json({message: "Email Sent", VerificationCode , email})
-            }catch(err){
-               console.log("asdf")
-            }
-        })
+    else {
+        User.findOne({ email: email })
+            .then(async (savedUser) => {
+                // console.log(savedUser)
+                // return res.status(200).json({message: 'Email Sent'})
+                if (savedUser) {
+                    return res.status(422).json({ error: 'Invalid Credentials' })
+                }
+                try {
+                    let VerificationCode = Math.floor(100000 + Math.random() * 900000)
+                    await mailer(email, VerificationCode)
+                    return res.status(200).json({ message: "Email Sent", VerificationCode, email })
+                } catch (err) {
+                    console.log("asdf")
+                }
+            })
     }
 })
 
-router.post("/signup", async(req,res) => {
-    const {username, password,email} = req.body; 
-    const lowerUsername = '@'+username.replace(/\s+/g, '').toLowerCase()
-    if(!username || !email || !password){
-        return res.status(422).json({error: 'please add all the fields'})
+router.post("/signup", async (req, res) => {
+    const { username, password, email } = req.body;
+    const lowerUsername = '@' + username.replace(/\s+/g, '').toLowerCase()
+    if (!username || !email || !password) {
+        return res.status(422).json({ error: 'please add all the fields' })
     }
-    else{
+    else {
         const user = new User({
-            username, 
+            username,
             email,
             lowerUsername
         })
-        try{
-            await user.save(); 
-            return res.status(200).json({message: "User Registered Successfully!"})
-        }catch(err){
-           console.log(err); 
-           return res.status(422).json({error: 'Error Registering User!'})
+        try {
+            await user.save();
+            return res.status(200).json({ message: "User Registered Successfully!" })
+        } catch (err) {
+            console.log(err);
+            return res.status(422).json({ error: 'Error Registering User!' })
         }
     }
 })
 
-router.post('/userdata',(req,res) => {
-    const {email} = req.body; 
-    User.findOne({email: email})
-    .then(savedUser=>{
-        if(!savedUser){
-            return res.status(422).json({error: "Invaild Credentials"})
-        }
-        else{
-            console.log(savedUser)
-            res.status(200).json({message: 'User Found', savedUser})
-        }
-    })
+router.post('/userdata', (req, res) => {
+    const { email } = req.body;
+    User.findOne({ email: email })
+        .then(savedUser => {
+            if (!savedUser) {
+                return res.status(422).json({ error: "Invaild Credentials" })
+            }
+            else {
+                console.log(savedUser)
+                res.status(200).json({ message: 'User Found', savedUser })
+            }
+        })
 })
-router.post('/finduser',(req,res) => {
-    const {keyword} = req.body; 
-    User.find({username:  { $regex: keyword, $options: 'i'}})
-    .then(user => {
-        console.log(user)
-        if(user.length == 0 ){
-            return res.status(422).json({ error: "No User Found"})
-        }
-        else{
-            return res.status(200).send({
-                message: "User Found",
-                user: user
-            })
-        }
-        
-    })
-})
-
-router.post('/checkfollow',(req,res) => {
-    const {followfrom,followto} = req.body
-    if(!followfrom || !followto){
-        return res.status(422).json({error: "Invalid Credentials"})
-    }
-    User.findOne({email: followfrom})
-    .then(mainuser => {
-        if(!mainuser){
-            return res.status(422).json({error: "Invalid Credentials"})
-        }else{
-            let data = mainuser.following.includes(followto)
-            if(data == true){
-                res.status(200).send({
-                    message: "User in following list"
-                })
-            }else{
-                res.status(200).send({
-                    message: "User not in following list"
+router.post('/finduser', (req, res) => {
+    const { keyword } = req.body;
+    User.find({ username: { $regex: keyword, $options: 'i' } })
+        .then(user => {
+            console.log(user)
+            if (user.length == 0) {
+                return res.status(422).json({ error: "No User Found" })
+            }
+            else {
+                return res.status(200).send({
+                    message: "User Found",
+                    user: user
                 })
             }
-        }
-    })
+
+        })
 })
 
-router.post('/followuser',(req,res) => {
-    const {followfrom, followto} = req.body; 
-
-    if(!followfrom || !followto){
-        return res.status(422).json({error: "Invalid Credentials"})
+router.post('/checkfollow', (req, res) => {
+    const { followfrom, followto } = req.body
+    if (!followfrom || !followto) {
+        return res.status(422).json({ error: "Invalid Credentials" })
     }
-   
-    User.findOne({email: followfrom})
-    .then(mainuser=> {
-       if(!mainuser){
-        return res.status(422).json({error: "Invalid Credentials"})
-
-       }else{
-        if(mainuser.following.includes(followto)){
-            return res.status(422).json({error: "Already Following"})
-          }
-          else{
-            mainuser.following.push(followto)
-          }
-       }
-    })
-    User.findOne({email: followto})
-    .then(otheruser=> {
-       if(!otheruser){
-        return res.status(422).json({error: "Invalid Credentials"})
-
-       }else{
-        if(otheruser.followers.includes(followfrom)){
-            return res.status(422).json({error: "Already Following"})
-          }
-          else{
-            otheruser.followers.push(followfrom)
-            otheruser.save()
-          }
-          res.status(200).send({
-            message: 'User Followed'
-          })
-       }
-    })
+    User.findOne({ email: followfrom })
+        .then(mainuser => {
+            if (!mainuser) {
+                return res.status(422).json({ error: "Invalid Credentials" })
+            } else {
+                let data = mainuser.following.includes(followto)
+                if (data == true) {
+                    res.status(200).send({
+                        message: "User in following list"
+                    })
+                } else {
+                    res.status(200).send({
+                        message: "User not in following list"
+                    })
+                }
+            }
+        })
 })
 
-router.post('/unfollowuser',(req,res) => {
-    const {unfollowfrom, unfollowto} = req.body; 
+router.post('/followuser', (req, res) => {
+    const { followfrom, followto } = req.body;
 
-    if(!unfollowfrom || !unfollowto){
-        return res.status(422).json({error: "Invalid Credentials"})
+    if (!followfrom || !followto) {
+        return res.status(422).json({ error: "Invalid Credentials" })
     }
-   
-    User.findOne({email: unfollowfrom})
-    .then(mainuser=> {
-       if(!mainuser){
-        return res.status(422).json({error: "Invalid Credentials"})
 
-       }else{
-        if(!mainuser.following.includes(unfollowto)){
-            return res.status(422).json({error: "Already Not Following"})
-          }
-          else{
-            mainuser.following.pull(unfollowto)
-          }
-       }
-    })
-    User.findOne({email: unfollowto})
-    .then(otheruser=> {
-       if(!otheruser){
-        return res.status(422).json({error: "Invalid Credentials"})
+    User.findOne({ email: followfrom })
+        .then(mainuser => {
+            if (!mainuser) {
+                return res.status(422).json({ error: "Invalid Credentials" })
 
-       }else{
-        if(!otheruser.followers.includes(unfollowfrom)){
-            return res.status(422).json({error: "Already Not Following"})
-          }
-          else{
-            otheruser.followers.pull(unfollowfrom)
-            otheruser.save()
-          }
-          res.status(200).send({
-            message: 'User Unfollowed'
-          })
-       }
-    })
+            } else {
+                mainuser.following.push(followto)
+            }
+        })
+    User.findOne({ email: followto })
+        .then(otheruser => {
+            if (!otheruser) {
+                return res.status(422).json({ error: "Invalid Credentials" })
+
+            } else {
+                otheruser.followers.push(followfrom)
+                otheruser.save()
+                res.status(200).send({
+                    message: 'User Followed'
+                })
+            }
+        })
+})
+
+router.post('/unfollowuser', (req, res) => {
+    const { unfollowfrom, unfollowto } = req.body;
+
+    if (!unfollowfrom || !unfollowto) {
+        return res.status(422).json({ error: "Invalid Credentials" })
+    }
+
+    User.findOne({ email: unfollowfrom })
+        .then(mainuser => {
+            if (!mainuser) {
+                return res.status(422).json({ error: "Invalid Credentials" })
+
+            } else {
+                mainuser.following.pull(unfollowto)
+            }
+        })
+    User.findOne({ email: unfollowto })
+        .then(otheruser => {
+            if (!otheruser) {
+                return res.status(422).json({ error: "Invalid Credentials" })
+
+            } else {
+                otheruser.followers.pull(unfollowfrom)
+                otheruser.save()
+                res.status(200).send({
+                    message: 'User Unfollowed'
+                })
+            }
+        })
 })
 
 
