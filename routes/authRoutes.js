@@ -192,8 +192,8 @@ router.post('/unfollowuser',(req,res) => {
         return res.status(422).json({error: "Invalid Credentials"})
 
        }else{
-        if(mainuser.following.includes(unfollowto)){
-            return res.status(422).json({error: "Already Following"})
+        if(!mainuser.following.includes(unfollowto)){
+            return res.status(422).json({error: "Already Not Following"})
           }
           else{
             mainuser.following.pull(unfollowto)
@@ -206,15 +206,15 @@ router.post('/unfollowuser',(req,res) => {
         return res.status(422).json({error: "Invalid Credentials"})
 
        }else{
-        if(otheruser.followers.includes(unfollowfrom)){
-            return res.status(422).json({error: "Already Following"})
+        if(!otheruser.followers.includes(unfollowfrom)){
+            return res.status(422).json({error: "Already Not Following"})
           }
           else{
-            otheruser.followers.push(unfollowfrom)
+            otheruser.followers.pull(unfollowfrom)
             otheruser.save()
           }
           res.status(200).send({
-            message: 'User Followed'
+            message: 'User Unfollowed'
           })
        }
     })
