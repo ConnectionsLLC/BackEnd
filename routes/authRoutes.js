@@ -140,6 +140,7 @@ router.post('/checkfollow',(req,res) => {
 
 router.post('/followuser',(req,res) => {
     const {followfrom, followto} = req.body; 
+
     if(!followfrom || !followto){
         return res.status(422).json({error: "Invalid Credentials"})
     }
@@ -164,11 +165,11 @@ router.post('/followuser',(req,res) => {
         return res.status(422).json({error: "Invalid Credentials"})
 
        }else{
-        if(otheruser.following.includes(followfrom)){
+        if(otheruser.followers.includes(followfrom)){
             return res.status(422).json({error: "Already Following"})
           }
           else{
-            otheruser.following.push(followfrom)
+            otheruser.followers.push(followfrom)
             otheruser.save()
           }
           res.status(200).send({
