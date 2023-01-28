@@ -147,27 +147,19 @@ router.post('/followuser', (req, res) => {
 
     User.findOne({ email: followfrom })
         .then(mainuser => {
-            if (!mainuser) {
-                return res.status(422).json({ error: "Invalid Credentials" })
-
-            } else {
-                mainuser.following.push(followto)
-            }
+           mainuser.following.push(followto)
         })
     User.findOne({ email: followto })
         .then(otheruser => {
-            if (!otheruser) {
-                return res.status(422).json({ error: "Invalid Credentials" })
-
-            } else {
                 otheruser.followers.push(followfrom)
                 otheruser.save()
                 res.status(200).send({
                     message: 'User Followed'
                 })
-            }
         })
 })
+
+
 
 router.post('/unfollowuser', (req, res) => {
     const { unfollowfrom, unfollowto } = req.body;
@@ -178,25 +170,17 @@ router.post('/unfollowuser', (req, res) => {
 
     User.findOne({ email: unfollowfrom })
         .then(mainuser => {
-            if (!mainuser) {
-                return res.status(422).json({ error: "Invalid Credentials" })
-
-            } else {
                 mainuser.following.pull(unfollowto)
-            }
         })
     User.findOne({ email: unfollowto })
         .then(otheruser => {
-            if (!otheruser) {
-                return res.status(422).json({ error: "Invalid Credentials" })
-
-            } else {
+           
                 otheruser.followers.pull(unfollowfrom)
                 otheruser.save()
                 res.status(200).send({
                     message: 'User Unfollowed'
                 })
-            }
+            
         })
 })
 
