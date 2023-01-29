@@ -44,10 +44,10 @@ router.post("/addpost", async (req, res) => {
         })
         try {
             await post.save();
-            return res.status(200).json({ message: "Post Added Successfully!" })
+            return res.status(200).json({ message: "Post added successfully" })
         } catch (err) {
             console.log(err);
-            return res.status(422).json({ error: 'Error Adding Post!',err })
+            return res.status(422).json({ error: 'error adding post',err })
         }
     }
 })

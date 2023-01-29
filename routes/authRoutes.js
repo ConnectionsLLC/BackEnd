@@ -2,6 +2,7 @@ const express = require('express')
 const router = express.Router();
 const mongoose = require('mongoose');
 const User = mongoose.model('User')
+const Post = mongoose.model('Post')
 const jwt = require('jsonwebtoken')
 require('dotenv').config();
 const nodemailer = require('nodemailer')
@@ -110,6 +111,18 @@ router.post('/finduser', (req, res) => {
                     user: user
                 })
             }
+
+        })
+})
+router.get('/allposts', (req, res) => {
+    Post.find({})
+        .then(post => {
+            console.log(post)
+                 res.status(200).send({
+                  
+                    post: post 
+                })
+            
 
         })
 })
