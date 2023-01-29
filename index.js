@@ -4,6 +4,7 @@ const app = express();
 const bodyParser = require('body-parser');
 require('./db')
 require('./Models/User')
+require('./Models/Post')
 const authRoutes = require('./routes/authRoutes')
 const uploadMediaRoutes = require('./routes/uploadMediaRoutes')
 
