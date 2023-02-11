@@ -114,12 +114,12 @@ router.post('/finduser', (req, res) => {
 
         })
 })
-router.get('/allposts', (req, res) => {
+router.post('/allposts', (req, res) => {
     Post.find({})
         .then(post => {
             console.log(post)
                  res.status(200).send({
-                  
+                    message: "Posts Found",
                     post: post 
                 })
             
