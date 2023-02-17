@@ -88,7 +88,7 @@ router.post('/userdata', (req, res) => {
     const { email } = req.body;
     User.findOne({ email: email })
         .then(savedUser => {
-            if (!savedUser) {
+            if (savedUser == null) {
                 return res.status(422).json({ error: "Invaild Credentials" })
             }
             else {
