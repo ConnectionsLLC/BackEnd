@@ -137,15 +137,12 @@ router.post('/finduser', (req, res) => {
     const { keyword } = req.body;
     User.find({ username: { $regex: keyword, $options: 'i' } })
         .then(user => {
-            if (user.length == 0) {
-                return res.status(422).json({ error: "No User Found" })
-            }
-            else {
+        
                 return res.status(200).send({
                     message: "User Found",
                     user: user
                 })
-            }
+    
 
         })
 })
