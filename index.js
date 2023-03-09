@@ -17,7 +17,7 @@ const messageRoutes = require('./routes/messageRoutes');
 const {createServer} = require('http')
 const {Server} = require('socket.io'); 
 const httpServer = createServer() 
-const io = new Server(app,{})
+const io = new Server(httpServer,{})
 
 app.use(bodyParser.json())
 app.use(authRoutes)
@@ -44,8 +44,8 @@ io.on('connection', (socket) => {
     })
 })
 
-httpServer.listen(port,() => {
-    console.log('Socket IO server is running on port', port)
+httpServer.listen(port1,() => {
+    console.log('Socket IO server is running on port', port1)
 })
 
 app.listen(port, () => {
