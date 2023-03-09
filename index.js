@@ -44,8 +44,8 @@ io.on('connection', (socket) => {
     })
 })
 
-httpServer.listen(port1,() => {
-    console.log('Socket IO server is running on port', port1)
+httpServer.listen(port,() => {
+    console.log('Socket IO server is running on port', port)
 })
 
 app.listen(port, () => {
