@@ -133,39 +133,18 @@ router.post('/userdata', (req, res) => {
             }
         })
 })
-router.post('/searchuser', (req, res) => {
+router.post('/finduser', (req, res) => {
     const { keyword } = req.body;
-
-    if (!keyword) {
-        return res.status(422).json({ error: "Please search a username" });
-    }
-
     User.find({ username: { $regex: keyword, $options: 'i' } })
         .then(user => {
-            // console.log(user);
-            let data = [];
-            user.map(item => {
-                data.push(
-                    {
-                        _id: item._id,
-                        username: item.username,
-                        email: item.email,
-                        description: item.description,
-                        profilepic: item.profilepic
-                    }
-                )
-            })
+        
+                return res.status(200).send({
+                    message: "User Found",
+                    user: user
+                })
+    
 
-            // console.log(data);
-            if (data.length == 0) {
-                return res.status(422).json({ error: "No User Found" });
-            }
-            res.status(200).send({ message: "User Found", user: data });
-
-        })
-        .catch(err => {
-            res.status(422).json({ error: "Server Error" });
-        })
+        })
 })
 router.post('/allposts', (req, res) => {
     Post.find({})
